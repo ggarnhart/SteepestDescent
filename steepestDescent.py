@@ -51,7 +51,8 @@ def gd0(obj, x0, use_sgd=False, max_it=100, abs_grad_tol=1.0e-04, rel_grad_tol=1
         f_t = obj.f(x_t)
 
         # perform teh linsearch if needed
-        while(obj.f(x_t) < obj.f(x_c) - armijo_factor * alpha * LA.norm(g_c, 2)):  # add armijo condition here
+        # I think i'm gonna add the stopping conditions here as well
+        while(obj.f(x_t) < obj.f(x_c) - armijo_factor * alpha * LA.norm(g_c, 2) and consent(g_c, abs_grad_tol, rel_grad_tol, f_c, x_t, x_c, abs_stepsize_tol, rel_stepsize_tol)):
             alpha /= 2
             x_t = x_c - alpha*g_c
             f_t = obj.f(x_t)
@@ -61,6 +62,25 @@ def gd0(obj, x0, use_sgd=False, max_it=100, abs_grad_tol=1.0e-04, rel_grad_tol=1
         f_c = f_t
         g_c = obj.g(x_c)
     return x_c
+
+# the stopping conditions
+
+
+def consent(g_c, abs_grad_tol, rel_grad_tol, f_c, x_t, x_c, abs_stepsize_tol, rel_stepsize_tol):
+
+    # small gradient in an absolute sense
+    criteria_one = (LA.norm(g_c) < abs_grad_tol)
+
+    # Gradient small relative to the magnitude of f.
+    criteria_two = (LA.norm(g_c) < rel_grad_tol * max(abs(f_c), 1))
+
+    # small step in an absolute sense
+    criteria_three = (LA.norm(x_t - x_c) < abs_stepsize_tol)
+
+    # samll step relative to magnitude of x_c
+    criteria_four = (LA.norm(x_t - x_c) <
+                     (rel_stepsize_tol * max(LA.norm(x_c), 1)))
+    return (criteria_one and criteria_two and criteria_three and criteria_four)
 
 
 if(__name__ == 'main'):
