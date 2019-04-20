@@ -1,5 +1,6 @@
 from math import log
 import numpy
+from numpy import linalg as LA  # let's make the linear algebra stuff a lil easier
 
 
 class Quadratic(object):
@@ -50,7 +51,7 @@ def gd0(obj, x0, use_sgd=False, max_it=100, abs_grad_tol=1.0e-04, rel_grad_tol=1
         f_t = obj.f(x_t)
 
         # perform teh linsearch if needed
-        while(f_t >= f_c):
+        while(obj.f(x_t) < obj.f(x_c) - armijo_factor * alpha * LA.norm(g_c, 2)):  # add armijo condition here
             alpha /= 2
             x_t = x_c - alpha*g_c
             f_t = obj.f(x_t)
