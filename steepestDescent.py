@@ -1,6 +1,6 @@
-from math import log
-import numpy
 from numpy import linalg as LA  # let's make the linear algebra stuff a lil easier
+import numpy
+from math import log
 
 
 class Quadratic(object):
@@ -12,15 +12,17 @@ class Quadratic(object):
 
 
 class Logistic_Regression(object):
+    # the negative log-likelihood for logisitic regression:
     def __init__(self, X_train, y_train):
-        # this constructor stores the training data and also prepends a column of ones. Each row of X_train corresponds to a single training case
+        # this constructor stores the training data and also prepends a column of ones.
+        # Each row of X_train corresponds to a single training case
         self.num_cases = X_train.shape[0]
         e = numpy.ones((self.num_cases, 1))
         self.X_train = numpy.append(e, X_train, axis=1)
         self.y_train = y_train
 
     def f(self, w):
-        # Return the negative log-lieklihood. Remember that we wish to maximize the log-likelihood, so we minimize its negative
+        # Return the negative log-likelihood. Remember that we wish to maximize the log-likelihood, so we minimize its negative
         z = self.X_train.dot(w)
         p = 1 / (1 + numpy.exp(-z))
         log_likelihood = 0
@@ -31,9 +33,31 @@ class Logistic_Regression(object):
                 log_likelihood -= log(1-p[i])
         return log_likelihood
 
+    # ah yes this does nothing rn so it makes sense that it does not work.
     def g(self, w):
-        # TODO: IMPEMENT ME
-        return
+
+        for i in range(0, self.num_cases):
+            g = X_train[0]
+            print("!",  g[i:])
+        vec = X_train.T
+        current_itr = vec
+        for i in range(0, self.num_cases):
+
+            if y_train[i] == 1:
+                numerator = numpy.exp(self.X_train.dot(w))
+                denominator = 1 + numpy.exp(self.X_train.dot(w))
+                frac = numerator / denominator
+                add_to_cur = frac * vec
+                current_itr = numpy.add(current_itr, add_to_cur)
+
+            else:
+                numerator = - numpy.exp(self.X_train.dot(w))
+                denominator = 1 + numpy.exp(self.X_train.dot(w))
+                frac = numerator / denominator
+                add_to_cur = frac * vec
+                current_itr = numpy.add(current_itr, add_to_cur)
+
+        return current_itr
 
 # Steepest descent ofr minimaization using a linesearch.
 
@@ -50,24 +74,21 @@ def gd0(obj, x0, use_sgd=False, max_it=100, abs_grad_tol=1.0e-04, rel_grad_tol=1
         x_t = x_c - alpha*g_c
         f_t = obj.f(x_t)
 
-        # perform teh linsearch if needed
+        # perform the linsearch if needed
         # I think i'm gonna add the stopping conditions here as well
-        while(obj.f(x_t) < obj.f(x_c) - armijo_factor * alpha * LA.norm(g_c, 2) and consent(g_c, abs_grad_tol, rel_grad_tol, f_c, x_t, x_c, abs_stepsize_tol, rel_stepsize_tol)):
+        while(obj.f(x_t) < obj.f(x_c) - armijo_factor * alpha * LA.norm([g_c], 2) and consent(g_c, abs_grad_tol, rel_grad_tol, f_c, x_t, x_c, abs_stepsize_tol, rel_stepsize_tol)):
             alpha /= 2
             x_t = x_c - alpha*g_c
             f_t = obj.f(x_t)
-
         # Accept the new iterate
         x_c = x_t
         f_c = f_t
         g_c = obj.g(x_c)
     return x_c
 
-# the stopping conditions
-
 
 def consent(g_c, abs_grad_tol, rel_grad_tol, f_c, x_t, x_c, abs_stepsize_tol, rel_stepsize_tol):
-
+    # the stopping conditions
     # small gradient in an absolute sense
     criteria_one = (LA.norm(g_c) < abs_grad_tol)
 
@@ -83,35 +104,35 @@ def consent(g_c, abs_grad_tol, rel_grad_tol, f_c, x_t, x_c, abs_stepsize_tol, re
     return (criteria_one and criteria_two and criteria_three and criteria_four)
 
 
-if(__name__ == 'main'):
-    numpy.random.seed(42)
+# if(__name__ == 'main'):
+print("here we go")
 
-    obj = Quadratic()
-    x0 = numpy.array([2, 3]).T
+obj = Quadratic()
+x0 = numpy.array([2, 3]).T
 
-    # Check the gradientt x0.
-    f0 = obj.f(x0)
-    h = 1.0e-05
-    dx = 2 * (numpy.random.random_sample(x0.shape) - 0.5)
-    f1 = obj.f(x0+h*dx)
-    fd = (f1 - 0)/h
-    g_c = obj.g(x0)
-    an = numpy.dot(g_c, dx)
-    print('The following should be close.')
-    print('finite difference: ', fd)
-    print('analytical:   ', an)
+# Check the gradient x0.
+f0 = obj.f(x0)
+h = 1.0e-05
+dx = 2 * (numpy.random.random_sample(x0.shape) - 0.5)
+f1 = obj.f(x0+h*dx)
+fd = (f1 - 0)/h
+g_c = obj.g(x0)
+an = numpy.dot(g_c, dx)
+print('The following should be close.')
+print('finite difference: ', fd)
+print('analytical:   ', an)
 
-    # Minimize the objective
-    x = gd0(obj, x0, max_it=100)
-    print('solution: ', x)
+# Minimize the objective
+x = gd0(obj, x0, max_it=100)
+print('solution: ', x)
 
-    # Logisitic Regression
-    X_train = numpy.array([(+1, +1), (+1, -1), (-1, +1), (-1, -1)])
-    y_train = numpy.array([1, 1, 0, 0])
-    w0 = numpy.array([1, 1, 1]).T
-    # print('f(w0):', numpy.exp(-obj.f(w0)))
+# Logisitic Regression
+X_train = numpy.array([(+1, +1), (+1, -1), (-1, +1), (-1, -1)])
+y_train = numpy.array([1, 1, 0, 0])
+w0 = numpy.array([1, 1, 1]).T  # the weights
+# print('f(w0):', numpy.exp(-obj.f(w0)))
 
-    obj = Logistic_Regression(X_train, y_train)
-    w = gd0(obj, w0, max_it=2000)
-    print('solution: ', w)
-    # print('f(w): ', numpy.exp(-obj.f(w)))
+obj = Logistic_Regression(X_train, y_train)
+w = gd0(obj, w0, max_it=2000)
+print('solution: ', w)
+# print('f(w): ', numpy.exp(-obj.f(w)))
