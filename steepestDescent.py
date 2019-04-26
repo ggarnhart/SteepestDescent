@@ -36,18 +36,21 @@ class Logistic_Regression(object):
     # ah yes this does nothing rn so it makes sense that it does not work.
     def g(self, w):
         z = self.X_train.dot(w)
-        print("Z", z)
+        # print("Z", z)
         # sigmoidal stuff
         numerator = numpy.exp(z)
         denom = 1 + numerator
         frac = numerator / denom
 
-        g = numpy.dot(self.X_train.T, z)
-        for i in range(0, self.num_cases):
-            v = X_train[i, :].T
+        g = numpy.dot(self.X_train.T, frac)
+
+        for i in range(0, g.size):
             if y_train[i] == 1:
+                # print("stay positive", g[i])
+                # i guess i don't really need to do anything else here.
                 pass
             else:
+                g[i] = g[i]*-1
                 pass
         return g
 
