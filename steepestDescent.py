@@ -35,29 +35,21 @@ class Logistic_Regression(object):
 
     # ah yes this does nothing rn so it makes sense that it does not work.
     def g(self, w):
+        z = self.X_train.dot(w)
+        print("Z", z)
+        # sigmoidal stuff
+        numerator = numpy.exp(z)
+        denom = 1 + numerator
+        frac = numerator / denom
 
+        g = numpy.dot(self.X_train.T, z)
         for i in range(0, self.num_cases):
-            g = X_train[0]
-            print("!",  g[i:])
-        vec = X_train.T
-        current_itr = vec
-        for i in range(0, self.num_cases):
-
+            v = X_train[i, :].T
             if y_train[i] == 1:
-                numerator = numpy.exp(self.X_train.dot(w))
-                denominator = 1 + numpy.exp(self.X_train.dot(w))
-                frac = numerator / denominator
-                add_to_cur = frac * vec
-                current_itr = numpy.add(current_itr, add_to_cur)
-
+                pass
             else:
-                numerator = - numpy.exp(self.X_train.dot(w))
-                denominator = 1 + numpy.exp(self.X_train.dot(w))
-                frac = numerator / denominator
-                add_to_cur = frac * vec
-                current_itr = numpy.add(current_itr, add_to_cur)
-
-        return current_itr
+                pass
+        return g
 
 # Steepest descent ofr minimaization using a linesearch.
 
